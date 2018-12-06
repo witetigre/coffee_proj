@@ -1,13 +1,7 @@
+package service;
 public abstract class Coffee
 {
-
-
     public abstract boolean loadCoffee(String packedCoffee); // Должен реализовывать
-    
-
-
-
-
 }
 class CoffeeBeans extends Coffee{
 

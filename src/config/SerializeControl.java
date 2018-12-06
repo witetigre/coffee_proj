@@ -39,7 +39,7 @@ public class SerializeControl
         try(FileWriter file = new FileWriter(fileName, false)){
 
 
-            file.write(data);
+            file.append(data);
             file.flush();
             return true;
 
@@ -59,9 +59,8 @@ public class SerializeControl
         // Но желателно чере Map вгонять сюда данные, хоть и пробегаемся циклом по нему, зато так код становится более
         // понятным. Если нужно будет подкоректирую это.
 
-        String data = "--Van Settings--\n"+
-                      "volume="+vanVol+";\n"+
-                      "--Coffee--\n";
+        String data = "volume="+vanVol+"\n";
+
 
         // В случае успешной записи в файл функция возвращает true иначе false
         if(this.writeConfigFile(data)){
@@ -75,14 +74,14 @@ public class SerializeControl
         }
 
     }
-    public boolean addCoffeeConfig(String coffeeType, String packageType, String vol){
+    public boolean addCoffeeConfig(String coffeeType, String packageType, String vol, String cost){
         /*
          * String coffeeType - Тип кофе
          * String packageType - Тип упаковки
          * String packageType - Обьем в фургоне
          * Функция предназначена для создания файла-описания фургона и записи в него типов кофе с обьемом
          */
-        String data = coffeeType+'_'+packageType+'='+vol+";\n";
+        String data = coffeeType+'_'+packageType+'='+vol+'|'+cost+"\n"; //Строка типа Типкофе_упаковка=обьем|цена;
 
         // В случае успешной записи в файл функция возвращает true иначе false
         if(this.writeConfigFile(data)){
@@ -98,26 +97,55 @@ public class SerializeControl
     public Map loadConfig(){
         Map result = new HashMap();
         String resString = "";
+
+
         result.put("error", 0);
-        result.put("data", "none");
+
 
         try(FileReader file = new FileReader(this.fileName)){
 
 
             int ch = 0;
-            while((ch = file.read()) != -1){
+            int i = 0;
+            //Посимвольно считываем файл настроек
+            while((ch = file.read()) != -1)
+            {
 
-                resString += (char)ch;
+                resString += (char)ch; // Записываем символы в нашу строку
 
+                if((char)ch == '\n') //Как только дошли конца строки \n переходим на следующую
+                {
+
+                    i++;
+
+                    String[] splited = resString.split("="); // Разбираем параметр
+                    String key = splited[0].trim();
+
+                    Map value = new HashMap();
+
+                    if(key.equals("volume")) //Если параметр у нас обьем фургона
+                    {
+
+                        value.put("volume", Integer.parseInt(splited[1].trim())); //Добавляем в подмасив его значение
+
+                    }else { //Иначе (тип кофе, пачка и цена)
+                        System.out.print(ch+" | "+key);
+                        String[] coffeeData = splited[1].split("\\|");
+                        value.put("volume", Integer.parseInt(coffeeData[0].trim()));// Заполняем соответствующие поля подмасива
+                        value.put("price", Integer.parseInt(coffeeData[1].trim()));// Заполняем соответствующие поля подмасива
+                    }
+                    result.put(key, value); //Добавляем подмасив в основной масив
+                    resString = "";
+                }
             }
 
 
-            result.put("data", resString);
+
             return result;
 
-        }catch (Exception e){
+        }catch (IOException e){
 
-            result.put("error", 1);
+            result.put("error", e.getMessage()); //Заменить на код ошибки
 
         }
 

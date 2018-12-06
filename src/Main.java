@@ -5,7 +5,7 @@ public class Main {
 
         SerializeControl ser = new SerializeControl();
         Map test = ser.loadConfig();
-        System.out.println("Hellow Coffee");
+        System.out.println("end");
 
     }
 }
