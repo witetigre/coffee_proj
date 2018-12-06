@@ -13,17 +13,18 @@
  */
 package config;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Iterator;
 import java.io.*;
 
 public class SerializeControl
 {
     private String fileName = "van.opt";
 
-    public void setFileName(String fileName){
+    public void setFileName(String fileName)
+    {
         // Меняем имя файла при желании
         this.fileName = fileName;
     }
@@ -32,11 +33,9 @@ public class SerializeControl
          * String data - Строка содержащая данные для записи в файл
          * Функция принимает параметр String для записи в файл и
          */
-        File fileCheck = new File(this.fileName);
-        if(fileCheck.exists()){
-            return false;
-        }
-        try(FileWriter file = new FileWriter(fileName, false)){
+
+
+        try(FileWriter file = new FileWriter(fileName, true)){
 
 
             file.append(data);
@@ -47,9 +46,57 @@ public class SerializeControl
 
             return false;
 
-        }}
+        }
+    }
 
-    public boolean addVanConfig(String vanVol){
+    public void changeOption(String optionName, String value)
+    {
+
+        String resultString = "";
+
+        Map<String, Map> config = this.loadConfig();
+        if(optionName.equals("volume"))
+        {
+            config.get(optionName).put("volume", value);
+
+
+        }else{
+            String[] valueArr = value.split("\\|");
+
+            config.get(optionName).put("volume", valueArr[0]);
+            config.get(optionName).put("price", valueArr[1]);
+
+        }
+
+        config.remove("error");
+        Iterator it = config.entrySet().iterator();
+
+        while (it.hasNext())
+        {
+            Map.Entry<String, Map> pair = (Map.Entry)it.next();
+            String key = pair.getKey();
+            Map param = pair.getValue();
+            String volume = param.get("volume").toString();
+            if(key.equals("volume")) {
+
+               resultString += pair.getKey() + "=" + param.get("volume")+'\n';
+
+            }else{
+
+                resultString += pair.getKey() + "=" + param.get("volume")+"|"+param.get("price")+'\n';
+
+            }
+            it.remove();
+
+        }
+
+        
+
+        System.out.println(resultString);
+
+    }
+
+    public boolean addVanConfig(float vanVol){
         /*
         * String vanVol - Параметр обьема
         * Функция предназначена для создания файла-описания фургона и записи в него обьема vanVol
@@ -59,7 +106,7 @@ public class SerializeControl
         // Но желателно чере Map вгонять сюда данные, хоть и пробегаемся циклом по нему, зато так код становится более
         // понятным. Если нужно будет подкоректирую это.
 
-        String data = "volume="+vanVol+"\n";
+        String data = "volume="+vanVol+"|0\n";
 
 
         // В случае успешной записи в файл функция возвращает true иначе false
@@ -74,6 +121,7 @@ public class SerializeControl
         }
 
     }
+
     public boolean addCoffeeConfig(String coffeeType, String packageType, String vol, String cost){
         /*
          * String coffeeType - Тип кофе
@@ -81,7 +129,7 @@ public class SerializeControl
          * String packageType - Обьем в фургоне
          * Функция предназначена для создания файла-описания фургона и записи в него типов кофе с обьемом
          */
-        String data = coffeeType+'_'+packageType+'='+vol+'|'+cost+"\n"; //Строка типа Типкофе_упаковка=обьем|цена;
+        String data = coffeeType+' '+packageType+'='+vol+'|'+cost+"\n"; //Строка типа Типкофе_упаковка=обьем|цена;
 
         // В случае успешной записи в файл функция возвращает true иначе false
         if(this.writeConfigFile(data)){
@@ -95,6 +143,8 @@ public class SerializeControl
         }
     }
     public Map loadConfig(){
+
+
         Map result = new HashMap();
         String resString = "";
 
@@ -106,17 +156,16 @@ public class SerializeControl
 
 
             int ch = 0;
-            int i = 0;
             //Посимвольно считываем файл настроек
             while((ch = file.read()) != -1)
             {
 
                 resString += (char)ch; // Записываем символы в нашу строку
 
-                if((char)ch == '\n') //Как только дошли конца строки \n переходим на следующую
+                if((char)ch == '\n' && !resString.equals("\n")) //Как только дошли конца строки \n переходим на следующую
                 {
 
-                    i++;
+
 
                     String[] splited = resString.split("="); // Разбираем параметр
                     String key = splited[0].trim();
@@ -125,9 +174,9 @@ public class SerializeControl
 
                     if(key.equals("volume")) //Если параметр у нас обьем фургона
                     {
-
-                        value.put("volume", Float.parseFloat(splited[1].trim())); //Добавляем в подмасив его значение
-
+                        String[] vanData = splited[1].split("\\|");
+                        value.put("volume", Float.parseFloat(vanData[0].trim())); //Добавляем в подмасив его значение
+                        value.put("fillVolume", Float.parseFloat(vanData[1].trim()));
                     }else { //Иначе (тип кофе, пачка и цена)
 
                         String[] coffeeData = splited[1].split("\\|");
