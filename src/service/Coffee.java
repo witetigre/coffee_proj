@@ -21,7 +21,7 @@ class CoffeeGround extends Coffee{
     private String coffeeType;
     private String packageType;
     private float vol; // Обьем
-    private float cost;
+    private float cost; //Стоимость
 
     public boolean loadCoffee(String packageCoffee){
         return true;

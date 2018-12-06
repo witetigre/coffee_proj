@@ -126,13 +126,13 @@ public class SerializeControl
                     if(key.equals("volume")) //Если параметр у нас обьем фургона
                     {
 
-                        value.put("volume", Integer.parseInt(splited[1].trim())); //Добавляем в подмасив его значение
+                        value.put("volume", Float.parseFloat(splited[1].trim())); //Добавляем в подмасив его значение
 
                     }else { //Иначе (тип кофе, пачка и цена)
-                        System.out.print(ch+" | "+key);
+
                         String[] coffeeData = splited[1].split("\\|");
-                        value.put("volume", Integer.parseInt(coffeeData[0].trim()));// Заполняем соответствующие поля подмасива
-                        value.put("price", Integer.parseInt(coffeeData[1].trim()));// Заполняем соответствующие поля подмасива
+                        value.put("volume", Float.parseFloat(coffeeData[0].trim()));// Заполняем соответствующие поля подмасива
+                        value.put("price", Float.parseFloat(coffeeData[1].trim()));// Заполняем соответствующие поля подмасива
                     }
                     result.put(key, value); //Добавляем подмасив в основной масив
                     resString = "";
