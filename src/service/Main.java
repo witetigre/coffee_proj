@@ -26,6 +26,7 @@ public class Main {
                 "1 - Coffee beans\n" +
                 "2 - Coffee ground\n" +
                 "3 - Coffee instant\n");
+        System.out.println("Enter command or enter {next}");
         String answ = input.nextLine();
         String[] consoleString = answ.split("--");
         String command = consoleString[0].trim();
@@ -46,17 +47,28 @@ public class Main {
                 case 3: coffeeInstant.setPackage(coffeePackage);coffeeInstant.loadCoffee(volume, cost);break;
             }
 
-        }else{
-            System.out.println("Error in command. Check syntax.");
         }
         while(!answ.equals("exit"))
         {
-            System.out.println("Enter command or enter exit to exit");
-            String answ = input.nextLine();
+            System.out.println("Enter command or enter {exit} to exit\n");
+            answ = input.nextLine();
             consoleString = answ.split("--");
             command = consoleString[0].trim();
             switch (command){
-                case "change": commandsFunctions.change();break;
+                case "change":
+                    String packedCoffee = consoleString[1].trim()+" "+consoleString[2].trim();
+                    float vol = Float.parseFloat(consoleString[3].trim());
+                    float cost = Float.parseFloat(consoleString[4].trim());
+                    commandsFunctions.change(packedCoffee, vol, cost);
+                break;
+                case "show":
+
+                    commandsFunctions.showVan();
+                    break;
+                case "sortBy":
+
+                    commandsFunctions.filterBy(consoleString[1].trim());
+                    break;
 
 
             }
