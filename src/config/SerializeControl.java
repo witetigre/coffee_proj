@@ -35,10 +35,30 @@ public class SerializeControl
          */
 
 
-        try(FileWriter file = new FileWriter(fileName, true)){
+        try(FileWriter file = new FileWriter(this.fileName, true)){
 
 
             file.append(data);
+            file.flush();
+            return true;
+
+        }catch(Exception e){
+
+            return false;
+
+        }
+    }
+    private boolean writeConfigFile(String data, boolean rewrite){
+        /*
+         * String data - Строка содержащая данные для записи в файл
+         * Функция принимает параметр String для записи в файл и
+         */
+
+
+        try(FileWriter file = new FileWriter(this.fileName, false)){
+
+
+            file.write(data);
             file.flush();
             return true;
 
@@ -57,7 +77,9 @@ public class SerializeControl
         Map<String, Map> config = this.loadConfig();
         if(optionName.equals("volume"))
         {
-            config.get(optionName).put("volume", value);
+
+            config.get(optionName).put("volume", config.get(optionName).get("volume")); //0 - max value 1 - filled
+            config.get(optionName).put("fillVolume", value); //0 - max value 1 - filled
 
 
         }else{
@@ -65,6 +87,9 @@ public class SerializeControl
 
             config.get(optionName).put("volume", valueArr[0]);
             config.get(optionName).put("price", valueArr[1]);
+            //Записываем изменившийся обьем
+
+            this.calcVolume();
 
         }
 
@@ -79,7 +104,7 @@ public class SerializeControl
             String volume = param.get("volume").toString();
             if(key.equals("volume")) {
 
-               resultString += pair.getKey() + "=" + param.get("volume")+'\n';
+               resultString += pair.getKey() + "=" + param.get("volume")+'|'+param.get("fillVolume")+'\n';
 
             }else{
 
@@ -90,9 +115,10 @@ public class SerializeControl
 
         }
 
-        
 
-        System.out.println(resultString);
+        this.writeConfigFile("", true);
+        this.writeConfigFile(resultString);
+
 
     }
 
@@ -121,15 +147,41 @@ public class SerializeControl
         }
 
     }
+    public void calcVolume()
+    {
+        Map<String, Map> config = this.loadConfig();
+        String volume = config.get("volume").get("volume").toString();
+        config.remove("error");
+        Iterator it = config.entrySet().iterator();
+        float filledVolume = 0;
+        while (it.hasNext())
+        {
+            Map.Entry<String, Map> pair = (Map.Entry)it.next();
+            String key = pair.getKey();
+            Map param = pair.getValue();
 
-    public boolean addCoffeeConfig(String coffeeType, String packageType, String vol, String cost){
+            if(!key.equals("volume")) {
+
+                filledVolume += Float.parseFloat(param.get("volume").toString());
+
+            }
+            it.remove();
+
+        }
+       //String[] volumeArr = volume.split("\\|");
+
+        this.changeOption("volume", Float.toString(filledVolume));
+    }
+    public boolean addCoffeeConfig(String coffeeType, String vol, String cost){
         /*
          * String coffeeType - Тип кофе
          * String packageType - Тип упаковки
          * String packageType - Обьем в фургоне
-         * Функция предназначена для создания файла-описания фургона и записи в него типов кофе с обьемом
+         * Функция предназначена для создания файла-описания фургона и записи в него типов кофе с обьемом, пересчет обьема
          */
-        String data = coffeeType+' '+packageType+'='+vol+'|'+cost+"\n"; //Строка типа Типкофе_упаковка=обьем|цена;
+        String data = coffeeType+'='+vol+'|'+cost+"\n"; //Строка типа Типкофе_упаковка=обьем|цена;
+
+        this.calcVolume();
 
         // В случае успешной записи в файл функция возвращает true иначе false
         if(this.writeConfigFile(data)){
@@ -175,7 +227,7 @@ public class SerializeControl
                     if(key.equals("volume")) //Если параметр у нас обьем фургона
                     {
                         String[] vanData = splited[1].split("\\|");
-                        value.put("volume", Float.parseFloat(vanData[0].trim())); //Добавляем в подмасив его значение
+                        value.put("volume", Float.parseFloat(vanData[0].trim())); //Max value
                         value.put("fillVolume", Float.parseFloat(vanData[1].trim()));
                     }else { //Иначе (тип кофе, пачка и цена)
 

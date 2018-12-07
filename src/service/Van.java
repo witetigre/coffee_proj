@@ -2,10 +2,21 @@ package service;
 
 import config.SerializeControl;
 
+import java.io.File;
 import java.util.Map;
 
 public class Van {
+    public boolean checkVan(){
+        File file = new File("van.opt");
 
+        return file.exists();
+    }
+    public void createVan(float vol){
+        SerializeControl serilalize = new SerializeControl();
+        serilalize.addVanConfig(vol);
+        System.out.println("Van succesfuly created!");
+
+    }
     public void setVanVolume(float volume)
     {
         SerializeControl serilalize = new SerializeControl();
@@ -18,30 +29,65 @@ public class Van {
 
             }else{
 
-                System.out.println("Volume already set, please change it in file van.opt");
-
+                serilalize.changeOption("volume", Float.toString(volume)+"|0\n");
+                serilalize.calcVolume();
             }
 
 
 
 
     }
-    public void addCoffee(String coffeeTypePacked, float vol, float cost)
-    {
+    public boolean checkCoffee(String coffeePackName){
         SerializeControl serilalize = new SerializeControl();
         Map<String, Map> config = serilalize.loadConfig();
+        var result = config.get(coffeePackName);
+        if(result == null){
+            return false;
+        }else{
+            return true;
+        }
+    }
+    public void addCoffee(String coffeeTypePacked, float vol, float cost)
+    {
+
+
+        SerializeControl serilalize = new SerializeControl();
+
+
+
+        Map<String, Map> config = serilalize.loadConfig();
+
         float volume = Float.parseFloat(config.get("volume").get("volume").toString());
+
         float fillVolume = Float.parseFloat(config.get("volume").get("fillVolume").toString());
+
         fillVolume += vol;
-        if(volume <= fillVolume){
+
+        if(fillVolume > volume){
+
             System.out.println("Can't load, van is filled ["+fillVolume+"/"+volume+"](filled volume/volume)");
+
         }else {
 
+            if(!this.checkCoffee(coffeeTypePacked)){
+                serilalize.addCoffeeConfig(coffeeTypePacked, Float.toString(vol), Float.toString(cost));
+                serilalize.calcVolume();
+                Map<String, Map> configNew = serilalize.loadConfig();
+                float fillVolumeTotal = Float.parseFloat(configNew.get("volume").get("fillVolume").toString());
+                System.out.println("Coffee vas loaded [" + fillVolumeTotal + "/" + volume + "](filled volume/volume)");
+            }else {
 
-            config.get("volume").put("fillVolume", fillVolume);
-            config.get(coffeeTypePacked).put("volume", vol);
-            serilalize.changeOption(coffeeTypePacked, vol+"|"+cost);
-            System.out.println("Coffee vas loaded ["+fillVolume+"/"+volume+"](filled volume/volume)");
+
+
+                config.get(coffeeTypePacked).put("volume", vol);
+
+
+                serilalize.changeOption(coffeeTypePacked, vol + "|" + cost);
+                serilalize.calcVolume();
+                Map<String, Map> configNew = serilalize.loadConfig();
+                float fillVolumeTotal = Float.parseFloat(configNew.get("volume").get("fillVolume").toString());
+                System.out.println("Coffee vas loaded [" + fillVolumeTotal + "/" + volume + "](filled volume/volume)");
+            }
 
         }
     }

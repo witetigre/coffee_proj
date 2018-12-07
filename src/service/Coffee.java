@@ -1,19 +1,22 @@
 package service;
 
 import service.Van;
+
 public abstract class Coffee
 {
 
-    private String coffeeType = "coffee beans";
-    private String packageType;
+    private String coffeeType;
+    protected String packageType;
 
 
-    public Coffee(String coffeeType, String packageType){
+    public Coffee(String coffeeType){
         this.coffeeType = coffeeType;
-        this.packageType = packageType;
+
 
     }
-
+    public void setPackage(String packageType){
+        this.packageType = packageType;
+    }
     public abstract boolean loadCoffee(float vol, float cost); // Должен реализовывать загрузку именно это кофе в фургон
 
     protected String packCoffee()
@@ -22,23 +25,25 @@ public abstract class Coffee
     }
 }
 class CoffeeBeans extends Coffee{
-    public CoffeeBeans(String packageType){
-        super("Coffee ground", packageType);
+    public CoffeeBeans(){
+        super("Coffee beans");
     }
 
-  public boolean loadCoffee(float vol, float cost){
+    public boolean loadCoffee(float vol, float cost){
 
-      //Записываем кофе в файл фургона
-       return true;
+        String packedCofee = this.packCoffee();
+        Van van = new Van();
+        van.addCoffee(packedCofee, vol, cost);
+        return true;
     }
 }
 class CoffeeGround extends Coffee{
 
 
 
-    public CoffeeGround(String packageType){
+    public CoffeeGround(){
 
-        super("Coffee ground", packageType);
+        super("Coffee ground");
     }
 
 
@@ -55,13 +60,17 @@ class CoffeeInstant extends Coffee{
 
 
 
-    public CoffeeInstant(String packageType){
+    public CoffeeInstant(){
 
-        super("Coffee instant", packageType);
+        super("Coffee instant");
 
     }
 
     public boolean loadCoffee(float vol, float cost){
+
+        String packedCofee = this.packCoffee();
+        Van van = new Van();
+        van.addCoffee(packedCofee, vol, cost);
         return true;
     }
 }
