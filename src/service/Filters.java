@@ -96,9 +96,9 @@ public class Filters {
                     }
                 }
                 if(sortParam.equals("vol")) {
-                    if(Float.parseFloat(param.get("vol").toString()) >= range[0] &&
-                            range[1] >=  Float.parseFloat(param.get("vol").toString())) {
-                        mapSort.put(resultString, Float.parseFloat(param.get("vol").toString()));
+                    if(Float.parseFloat(param.get("volume").toString()) >= range[0] &&
+                            range[1] >=  Float.parseFloat(param.get("volume").toString())) {
+                        mapSort.put(resultString, Float.parseFloat(param.get("volume").toString()));
                     }
                 }
 

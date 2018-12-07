@@ -69,6 +69,17 @@ public class Main {
 
                     commandsFunctions.filterBy(consoleString[1].trim());
                     break;
+                case "range":
+
+                    String[] range = consoleString[2].trim().split("\\|");
+                    float[] fRange = {Float.parseFloat(range[0]), Float.parseFloat(range[1])};
+                    commandsFunctions.range(consoleString[1].trim(), fRange);
+                    break;
+                case "help":
+
+
+                    commandsFunctions.help();
+                    break;
 
 
             }
