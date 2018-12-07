@@ -26,34 +26,36 @@ public class Main {
                 "1 - Coffee beans\n" +
                 "2 - Coffee ground\n" +
                 "3 - Coffee instant\n");
-        System.out.println("Enter command or enter {next}");
-        String answ = input.nextLine();
-        String[] consoleString = answ.split("--");
-        String command = consoleString[0].trim();
-        if(command.equals("add"))
-        {
-            int coffeeName = Integer.parseInt(consoleString[1].trim());
-            String coffeePackage = consoleString[2].trim();
-            float volume = Float.parseFloat(consoleString[3].trim());
-            float cost = Float.parseFloat(consoleString[4].trim());
 
+        String answ = "";
+        String[] consoleString;
+        String command;
 
-            //Van check param
-
-
-            switch (coffeeName){
-                case 1: coffeeBeans.setPackage(coffeePackage);coffeeBeans.loadCoffee(volume, cost);break;
-                case 2: coffeeGround.setPackage(coffeePackage);coffeeGround.loadCoffee(volume, cost);break;
-                case 3: coffeeInstant.setPackage(coffeePackage);coffeeInstant.loadCoffee(volume, cost);break;
-            }
-
-        }
         while(!answ.equals("exit"))
         {
+
             System.out.println("Enter command or enter {exit} to exit\n");
             answ = input.nextLine();
             consoleString = answ.split("--");
             command = consoleString[0].trim();
+            if(command.equals("add"))
+            {
+                int coffeeName = Integer.parseInt(consoleString[1].trim());
+                String coffeePackage = consoleString[2].trim();
+                float volume = Float.parseFloat(consoleString[3].trim());
+                float cost = Float.parseFloat(consoleString[4].trim());
+
+
+                //Van check param
+
+
+                switch (coffeeName){
+                    case 1: coffeeBeans.setPackage(coffeePackage);coffeeBeans.loadCoffee(volume, cost);break;
+                    case 2: coffeeGround.setPackage(coffeePackage);coffeeGround.loadCoffee(volume, cost);break;
+                    case 3: coffeeInstant.setPackage(coffeePackage);coffeeInstant.loadCoffee(volume, cost);break;
+                }
+
+            }
             switch (command){
                 case "change":
                     String packedCoffee = consoleString[1].trim()+" "+consoleString[2].trim();
