@@ -1,2 +1,2 @@
 # coffee_proj
-My first java SE project
+My first Java SE project
